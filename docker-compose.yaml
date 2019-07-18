@@ -1,0 +1,35 @@
+version: "3.7"
+volumes:
+  jenkins-home:
+  mongo:
+services:
+  ui:
+    image: nboaram/ui:latest
+    ports:
+    - target: 80
+      published: 80
+    depends_on:
+      - jenkins
+      - api
+  api:
+    image: nboaram/api:latest
+    depends_on:
+      - database
+  database:
+    image: mongo:latest
+    volumes:
+    - type: volume
+      source: mongo
+      target: /data/db
+    container_name: database
+  jenkins:
+    image: nboaram/jenkins:latest
+    volumes:
+    - type: volume
+      source: jenkins-home
+      target: /var/jenkins_home
+    - type: bind
+      source: /var/run/docker.sock
+      target: /var/run/docker.sock
+    environment:
+      - JENKINS_OPTS="--prefix=jenkins"
